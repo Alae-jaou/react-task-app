@@ -1,0 +1,68 @@
+.selected {
+    color: red;
+}
+
+.handle{
+    cursor: move;
+}
+
+.container{
+    display: flex;
+}
+
+.draggable-card {
+    border-radius: 25px;
+    background: #F5F5F5;
+    padding: 20px;
+    width: 200px;
+    height: 150px;
+    margin: auto;
+    cursor: move;
+    margin-top: 2%;
+}
+
+.is-dragged-group1{
+    display: none;
+}
+
+
+.is-dragged-group2{
+    display: none;
+}
+
+.is-dragged-group3{
+    display: none;
+}
+
+.group-one{
+    background: #FFAFAD;
+    border-radius: 10px;
+    padding: 20px;
+    width: 400px;
+    height: 600px;
+    
+}
+
+.group-two{
+    background: #FFEA70;
+    border-radius: 10px;
+    padding: 20px;
+    width: 400px;
+    height: 600px;
+}
+
+.group-three{
+    background: #9DFF70;
+    border-radius: 10px;
+    padding: 20px;
+    width: 400px;
+    height: 600px;
+}
+
+.turn-on-grp-2{
+    background : #FFF70A
+}
+
+.turn-on-grp-3{
+    background: #1BA611;
+}
