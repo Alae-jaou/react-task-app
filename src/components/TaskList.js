@@ -15,7 +15,7 @@ const TaskList = (props) => {
     const [modalState , setmodalState] = useState(false);
     const oldListStored = useRef(null);
 
-    const handDragItem = (e  , itemcoords)=>{
+    const handDragItem = (e  , itemcoords )=>{
       oldListStored.current = list;
       draggedItem.current = itemcoords;
       dragNode.current = e.target;
@@ -66,10 +66,12 @@ const TaskList = (props) => {
       draggedBox.current = null;
     }
     
-    const handlTargetItem = (e, {boxIndex , itemIndex} ) => {
+    const handlTargetItem = (e, {boxIndex , itemIndex}, itemId ) => {
       let currentItem = draggedItem.current;
       if (dragNode.current !== e.target && currentItem.boxIndex !== boxIndex && currentItem.boxIndex === boxIndex - 1    ) {
         setmodalState(true);
+        console.log('itemId = ',itemId)
+        
         setList(oldList => {
           let newList = JSON.parse(JSON.stringify(oldList));
           newList[boxIndex].items.splice(itemIndex , 0 , newList[currentItem.boxIndex].items.splice(currentItem.itemIndex,1)[0]);
@@ -87,7 +89,7 @@ const TaskList = (props) => {
             return (
               <div key={box.title }
               onDragEnter = {dragging && ! box.items.length ? (e) => 
-                handlTargetItem(e , {boxIndex , itemIndex : 0 } ) : null 
+                handlTargetItem(e , {boxIndex , itemIndex : 0 } , box.items ) : null 
               } 
               className={dragging ? getGroupStyles(boxIndex , box.group) :`group-${box.group}`} >
                 {
@@ -97,13 +99,14 @@ const TaskList = (props) => {
                       onDragStart={(e) =>{
                         draggedBox.current = boxIndex;
                         handDragItem(e,{boxIndex , itemIndex})}}
-                      draggable className={dragging ? getBoxStyles({boxIndex , itemIndex}) : 'draggable-card'} 
-                      onDragEnter={dragging ? (e) => {
-                        handlTargetItem(e , {boxIndex , itemIndex});
+                        draggable className={dragging ? getBoxStyles({boxIndex , itemIndex}) : 'draggable-card'} 
+                        onDragEnter={dragging ? (e) => {
+                        handlTargetItem(e , {boxIndex , itemIndex} , item.taskId );
+                        console.log('second call', item.taskId)
                       }
                       : null } 
                       > 
-                      <TaskListItem key={item.taskId}  {...item} />
+                      <TaskListItem key={item.taskId}  {...item}  />
                       <ModalEffect show={modalState} onSubmit={ (response) => {
                       handlModalRespond(response , item.taskId)
                       } } />
