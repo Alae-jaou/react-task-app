@@ -11,10 +11,10 @@ const TaskListItem = (  props   ) => {
            <NavLink to={`/edit/${props.taskId}`} > {props.taskName} </NavLink>
            <p> {props.taskDescription } </p>
            <button onClick={()=> {
+               console.log('deleting data', props.taskId);
                 props.dispatch(deleteTask(props.taskId , props.taskState));
             }
-            } > remove </button> 
-            
+            } > remove </button>    
         </div>
    )
 }

@@ -25,15 +25,8 @@ const BarChart = (props) => {
     setData(objData)
   }, [props]);
 
-  const changeMe = () => {
-    console.log("amina ")
-    data.datasets.data = [props.toDoListTotal, props.inProgressTotal, props.finishedTotal]
-    console.log(data)
-    setData(data)
-  }
   return (
     <div>
-      <button onClick={changeMe} > Update </button>
       <Bar
         data={data}
         width={70}

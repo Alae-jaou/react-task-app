@@ -3,7 +3,7 @@ import ModalExample from './ModalExample';
 
 
 const DraggableStruct = ({data}) => { 
-
+  console.log('calling',data)
     const [list, setList] = useState(data);
     const draggedItem = useRef(null);
     const dragNode = useRef(null);
@@ -49,12 +49,13 @@ const DraggableStruct = ({data}) => {
       dragNode.current = null;
     }
       
-    const handlTargetItem = (e, {boxIndex , itemIndex} ) => {
+    const handlTargetItem = (e, {boxIndex , itemIndex} , taskId ) => {
       let currentItem = draggedItem.current;
-      console.log(boxIndex , itemIndex  , modalState);
+      console.log('consoel', taskId);
       
       if (dragNode.current !== e.target && currentItem.boxIndex !== boxIndex && currentItem.boxIndex < boxIndex ) {
-        setmodalState(true);
+        //setmodalState(true);
+        setList(oldListStored.current)
         setList(oldList => {
           let newList = JSON.parse(JSON.stringify(oldList));
           newList[boxIndex].item.splice(itemIndex , 0 , newList[currentItem.boxIndex].item.splice(currentItem.itemIndex,1)[0]);
@@ -83,7 +84,7 @@ const DraggableStruct = ({data}) => {
                       onDragStart={(e) =>handDragItem(e,{boxIndex , itemIndex})}
                       draggable className={dragging ? getStyles({boxIndex , itemIndex}) : 'draggable-card'} 
                       onDragEnter={dragging ? (e) => {
-                        handlTargetItem(e , {boxIndex , itemIndex});
+                        handlTargetItem(e , {boxIndex , itemIndex} , item);
                       }
                       : null } 
                       > 

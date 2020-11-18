@@ -41,7 +41,6 @@ const TaskForm = (props  ) => {
     const buttonLabel = !obj.taskName ? 'Add Task' : 'Edit Task';
     return (
         <div>
-
             <form onSubmit={onSubmitForm} >
                 {error && <p> Please you have to provide a task Title, Description and Prio </p>}
                 <input  name='NameInput' 
