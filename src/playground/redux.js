@@ -37,7 +37,7 @@ const tasksReducer = (state = [] , action ) => {
 
         case 'EDIT_TASK': 
             return  state.map((task) => {
-                if (task.taskId === action.taskInfo.id && task.taskState < 3 ) {
+                if (task.taskId === action.taskInfo.id  ) {
                     return {...task , ...action.taskInfo.element}     
                 } else return task ; 
             });
@@ -132,7 +132,7 @@ const addTask = ({
         taskName,
         taskDescription,
         startDate,
-        taskState : 1, 
+        taskState : 0, 
         endDate, 
         priority, 
         message : undefined

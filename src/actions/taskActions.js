@@ -1,24 +1,34 @@
 import { v4 as uuidv4 } from 'uuid';
+import axios from 'axios'; 
 
-export const addTask = ({
+export const addTask = (taskInfo) => ({
+    type : 'ADD_TASK', 
+    taskInfo
+});
+
+export const startAddTask = ({
     taskName = '',
     taskDescription = '',
+    taskState = 0,
     startDate = 0 ,
     endDate = 0, 
     priority = '' 
-}) => ({
-    type : 'ADD_TASK', 
-    taskInfo : {
-        taskId : uuidv4(),
-        taskName,
-        taskDescription,
-        startDate,
-        taskState : 1, 
-        endDate, 
-        priority, 
-        message : undefined
+} = {}) => {
+    return async (dispatch) => {
+        const task = {
+            taskName,
+            taskDescription,
+            startDate ,
+            taskState,
+            endDate , 
+            priority 
+        }
+        await axios.post('http://localhost:3001/task' , task)
+        .then((res) => {
+            dispatch(addTask({taskId : res.data._id , ...task}))
+        }).catch((e) => console.log('server not responding', e))
     }
-});
+}
 
 export const editTask = (id , element = {}) => ({
     type : 'EDIT_TASK',
@@ -37,6 +47,12 @@ export const deleteTask = ( id , taskState ) => ({
     id,
     taskState
 });
+
+export const setTask = (id, targetIndex) => ({
+    type : 'SET_TASK',
+    id, 
+    targetIndex
+})
 
 // export const setDataStruct = ( taskList ) => ({
 //     type : 'SET_VALUES',

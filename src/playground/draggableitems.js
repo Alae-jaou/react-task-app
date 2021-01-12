@@ -1,136 +1,199 @@
-import React , {useState , useRef } from 'react';
-import ModalExample from './ModalExample';
+import React, { useState ,useEffect } from "react";
+import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
+import { v4 as uuid } from "uuid";
 
+const itemsFromBackend = [
+  { id: "id_item_1", taskDescription : 'Alae' , taskState : 0 },
+  { id: "id_item_2", taskDescription : 'Alae' , taskState : 0 },
+  { id: "id_item_3", taskDescription : 'Alae' , taskState : 0 },
+  { id: "id_item_4", taskDescription : 'Alae' , taskState : 0 },
+  { id: "id_item_5", taskDescription : 'Alae' , taskState : 0 }
+];
 
-const DraggableStruct = ({data}) => { 
-  console.log('calling',data)
-    const [list, setList] = useState(data);
-    const draggedItem = useRef(null);
-    const dragNode = useRef(null);
-    const [dragging , setDragging] = useState(false);
-    const [modalState , setmodalState] = useState(false);
-    const oldListStored = useRef(null);
-
-    const handDragItem = (e  , itemcoords)=>{
-        oldListStored.current = list;
-        draggedItem.current = itemcoords;
-        dragNode.current = e.target;
-        setTimeout(()=> setDragging(true) , 0 );
-        dragNode.current.addEventListener('dragend', handlStopDrag);
-    }
-
-    const handlModalRespond = (response) => {
-      setmodalState(response);
-      if ( !response) {
-        setList(oldListStored.current)
-      }
-    }
-
-    const getStyles = ({boxIndex , itemIndex}) => {
-        //console.log({boxIndex , itemIndex})
-        if (boxIndex === draggedItem.current.boxIndex && itemIndex === draggedItem.current.itemIndex ) {
-          switch (boxIndex) {
-            case 0:
-              return 'is-dragged-group1 draggable-card';
-            case 1 :
-              return 'is-dragged-group2 draggable-card';
-            case 2 :
-              return 'is-dragged-group3 draggable-card';     
-          }
-        }
-        return 'draggable-card';
-    }
-
-    const handlStopDrag = () => {
-      console.log('stop dragging ');
-      setDragging(false);
-      dragNode.current.removeEventListener('dragend', handlStopDrag);
-      draggedItem.current = null;
-      dragNode.current = null;
-    }
-      
-    const handlTargetItem = (e, {boxIndex , itemIndex} , taskId ) => {
-      let currentItem = draggedItem.current;
-      console.log('consoel', taskId);
-      
-      if (dragNode.current !== e.target && currentItem.boxIndex !== boxIndex && currentItem.boxIndex < boxIndex ) {
-        //setmodalState(true);
-        setList(oldListStored.current)
-        setList(oldList => {
-          let newList = JSON.parse(JSON.stringify(oldList));
-          newList[boxIndex].item.splice(itemIndex , 0 , newList[currentItem.boxIndex].item.splice(currentItem.itemIndex,1)[0]);
-          draggedItem.current = {boxIndex , itemIndex};
-          return newList;
-        })
-        
-      }
+const columnsFromBackendTwo = {
+  ["0"]: {
+    name: "Requested",
+    items: []
+  },
+  ["1"]: {
+    name: "To do",
+    items: []
+  },
+  ["2"]: {
+    name: "In Progress",
+    items: []
+  },
+  ["3"]: {
+    name: "Done",
+    items: []
   }
+};
 
-  return (
-    <div>
-      <div className='container'>
-        {
-          list.map((box , boxIndex) => {
-            return (
-              <div key={box.title}
-              onDragEnter = {dragging && ! box.item.length ? (e) => 
-                handlTargetItem(e , {boxIndex , itemIndex : 0 } ) : null
-              }
-              className={`group-${box.group}`} >
-                {
-                  box.item.map((item , itemIndex) => {
-                    return (
-                      <div key={item} 
-                      onDragStart={(e) =>handDragItem(e,{boxIndex , itemIndex})}
-                      draggable className={dragging ? getStyles({boxIndex , itemIndex}) : 'draggable-card'} 
-                      onDragEnter={dragging ? (e) => {
-                        handlTargetItem(e , {boxIndex , itemIndex} , item);
-                      }
-                      : null } 
-                      > 
-                      {item} 
-                      <ModalExample show={modalState} onSubmit={ (response) => {
-                        handlModalRespond(response)
-                      } } />
-                      </div>
-                    )
-                  })
-                }
-              </div>
-            )
-          })}   
-          
-      </div>
-    </div>
-  ) 
+const initState = ( columnsFromBackendTwo , itemsFromBackend) => {
+  itemsFromBackend.forEach((item) => {
+    columnsFromBackendTwo[item.taskState.toString()].items.push(item)
+  })
+  return columnsFromBackendTwo
 }
 
-export default DraggableStruct;
+
+const columnsFromBackend = {
+  ["0"]: {
+    name: "Requested",
+    items: itemsFromBackend
+  },
+  ["1"]: {
+    name: "To do",
+    items: []
+  },
+  ["2"]: {
+    name: "In Progress",
+    items: []
+  },
+  ["3"]: {
+    name: "Done",
+    items: []
+  }
+};
+
+const onDragEnd = (result, columns, setColumns) => {
+  if (!result.destination) return;
+  const { source, destination } = result;
+
+  // If we drop in differente columns
+  if (source.droppableId !== destination.droppableId) {
+    // get witch column we had the dragging action
+    const sourceColumn = columns[source.droppableId];
+    // get witch column we had the dropping action
+    const destColumn = columns[destination.droppableId];
+    // getting all items of the dragged column 
+    const sourceItems = [...sourceColumn.items];
+    // getting all items of the dropped column
+    const destItems = [...destColumn.items];
+    
+    // splice( L'indice à partir duquel commencer à changer le tableau ,
+    //         Un entier indiquant le nombre d'anciens éléments à remplacer,
+    //         Les éléments à ajouter au tableau )
+    const [removed] = sourceItems.splice(source.index, 1);
+    destItems.splice(destination.index, 0, removed);
+    setColumns({
+      ...columns,
+      [source.droppableId]: {
+        ...sourceColumn,
+        items: sourceItems
+      },
+      [destination.droppableId]: {
+        ...destColumn,
+        items: destItems
+      }
+    });
+  } else {
+    const column = columns[source.droppableId];
+    const copiedItems = [...column.items];
+    const [removed] = copiedItems.splice(source.index, 1);
+    copiedItems.splice(destination.index, 0, removed);
+    setColumns({
+      ...columns,
+      [source.droppableId]: {
+        ...column,
+        items: copiedItems
+      }
+    });
+  }
+};
+
+function Draggableitems() {
+  const [columns, setColumns] = useState(columnsFromBackend);
+  
+
+  useEffect(() => {
+    const data = [];
+    Object.entries(columns).forEach(([id , column]) => {
+      column.items.forEach((item) => {
+        data.push({...item , taskState : parseInt(id)})
+      })
+    })
+    console.log(data)
+  } , [columns])
 
 
-      
-      // <div className="container">
-        
+  return (
+    <div style={{ display: "flex", justifyContent: "center", height: "100%" }}>
+      <DragDropContext
+        onDragEnd={result => onDragEnd(result, columns, setColumns)}
+      >
+        {Object.entries(columns).map(([columnId, column], index) => {
+          return (
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center"
+              }}
+              key={columnId}
+            >
+              <h2>{column.name}</h2>
+              <div style={{ margin: 8 }}>
+                <Droppable droppableId={columnId} key={columnId}>
+                  {(provided, snapshot) => {
+                    return (
+                      <div
+                        {...provided.droppableProps}
+                        ref={provided.innerRef}
+                        style={{
+                          background: snapshot.isDraggingOver
+                            ? "lightblue"
+                            : "lightgrey",
+                          padding: 4,
+                          width: 250,
+                          minHeight: 500
+                        }}
+                      >
+                        {column.items.map((item, index) => {
+                          return (
+                            <Draggable
+                              key={item.id}
+                              draggableId={item.id}
+                              index={index}
+                            >
+                              {(provided, snapshot) => {
+                                return (
+                                  <div
+                                    ref={provided.innerRef}
+                                    {...provided.draggableProps}
+                                    {...provided.dragHandleProps}
+                                    style={{
+                                      userSelect: "none",
+                                      padding: 16,
+                                      margin: "0 0 8px 0",
+                                      minHeight: "50px",
+                                      backgroundColor: snapshot.isDragging
+                                        ? "#263B4A"
+                                        : "#456C86",
+                                      color: "white",
+                                      ...provided.draggableProps.style
+                                    }}
+                                  >
+                                    {item.taskDescription}
+                                    
+                                  </div>
+                                );
+                              }}
+                            </Draggable>
+                          );
+                        })}
+                        {provided.placeholder}
+                      </div>
+                    );
+                  }}
+                </Droppable>
+              </div>
+            </div>
+          );
+        })}
+      </DragDropContext>
+    </div>
+  );
+}
 
-      //   <div className="group-one">
-      //     <div className="draggable-card" >
-      //       Hello from here
-      //     </div>
-      //     <div className="draggable-card" >
-      //       Hello from here
-      //     </div>
-      //   </div>
-
-      //   <div className="group-two">
-      //     <div className="draggable-card" >
-      //       Hello from second group
-      //     </div>
-      //   </div>
-        
-      //   <div className="group-three">
-      //     <div className="draggable-card" >
-      //       Hello from the third group
-      //     </div>
-      //   </div>
-
-      // </div>
+export default Draggableitems;

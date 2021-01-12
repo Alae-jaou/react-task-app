@@ -6,10 +6,16 @@ const tasksReducer = (state = [] , action ) => {
 
         case 'EDIT_TASK': 
             return  state.map((task) => {
-                if (task.taskId === action.id && task.taskState < 3 ) {
+                if (task.taskId === action.id  ) {
                     return {...task , ...action.element}     
                 } else return task ; 
             });
+        case 'SET_TASK' : 
+             return state.map((task) => {
+                if (task.taskId === action.id) {
+                    return {...task , taskState : action.targetIndex }
+                } else return task;
+            })
             
         case 'MOVE_TASK' : 
             return  state.map((task) => {

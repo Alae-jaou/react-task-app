@@ -16,13 +16,13 @@ const TaskForm = (props  ) => {
     const [Name , setName] =  useState(obj.taskName);
     const [Description , setDescription] = useState(obj.taskDescription);
     const [dateRange , setDateRange] = useState({
-        startDate : obj.taskStartDate, 
-        endDate : obj.taskEndDate
+        startDate : obj.taskStartDate.valueOf(), 
+        endDate : obj.taskEndDate.valueOf()
     });
     const [Prio , setPrio] = useState(obj.priority);
     const [focusedInput , setFocusedInput] = useState(null);
     const [error, setError] = useState(undefined);
-
+  
     const onSubmitForm = (e) => {
         e.preventDefault();
         if ( !Name || !Description || !Prio ) {
@@ -52,9 +52,9 @@ const TaskForm = (props  ) => {
                 placeholder="Description" /> 
 
                 <DateRangePicker
-                startDate={dateRange.startDate} // momentPropTypes.momentObj or null,
+                startDate={moment(dateRange.startDate)} // momentPropTypes.momentObj or null,
                 startDateId="start_date_id" // PropTypes.string.isRequired,
-                endDate={dateRange.endDate} // momentPropTypes.momentObj or null,
+                endDate={moment(dateRange.endDate)} // momentPropTypes.momentObj or null,
                 endDateId="end_date_id" // PropTypes.string.isRequired,
                 onDatesChange={(dates) => setDateRange(dates)} // PropTypes.func.isRequired,
                 focusedInput={focusedInput} // PropTypes.oneOf([START_DATE, END_DATE]) or null,

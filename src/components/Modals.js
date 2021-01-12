@@ -1,15 +1,19 @@
-import React , { useState} from 'react';
+import React , { useState , useEffect} from 'react';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const ModalEffect = (props) => {
     const [show, setShow] = useState(props.show);
-
+    
     const handleClose = () => {
         setShow(false);
         props.onSubmit(false);
     }
+    
+    useEffect(() => {
+      setShow(props.show)
+    },[props.count])
 
     const handlProgressTask = () => {
         setShow(false);
